@@ -1,0 +1,85 @@
+server:
+  port: 3000
+spring:
+  application:
+    name: portal-service
+    version: v1
+    desc: portal-service
+  cloud:
+    bus:
+      destination: springCloudBus
+    stream:
+      function:
+        definition: attachmentEntity;busConsumer
+      bindings:
+        busConsumer-in-0:
+          destination: ${spring.cloud.bus.destination}
+        attachmentEntity-in-0:
+          destination: attachment-entity.topic
+          group: attachment
+        attachmentEntity-out-0:
+          destination: attachment-entity.topic
+          group: attachment
+  ftp:
+    hostname: ftp_server_hostname
+    username: ftp_server_username
+    password: ftp_server_password
+    port: 21
+    directory: /mnt
+    enabled: false
+  datasource:
+    dbcp2:
+      initial-size: 20
+    url: jdbc:mariadb://${MARIA_DB_HOST:127.0.0.1}:${MARIA_DB_PORT:3306}/${MARIA_DB_NAME:test}?createDatabaseIfNotExist=true&allowMultiQueries=true&useSSL=false
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: ${MARIA_DB_USERNAME:root}
+    password: ${MARIA_DB_PASSWORD:0000}
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+        storage_engine: innodb
+        format_sql: true
+        default_batch_fetch_size: 1000
+    show-sql: true
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema-mariadb.sql
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, health, beans, info
+info:
+  app:
+    name: Portal Service
+    description: 메뉴관리, 권한관리, 공통코드관리 및 컨텐츠관리 등의 기능을 제공
+logging:
+  level:
+    org.egovframe.cloud.portalservice.client: DEBUG
+file:
+  directory: ${user.home}/msa-attach-volume
+messages:
+  directory: ${file.directory}/messages
+token:
+  secret: token_secret
+ftp:
+  hostname: ftp_server_hostname
+  username: ftp_server_username
+  password: ftp_server_password
+  port: 21
+  directory: /mnt
+  enabled: false
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    preferIpAddress: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://admin:admin@${eureka.instance.hostname:localhost}:/eureka
+service-path: ${SERVICE_PATH:}/portal-service
